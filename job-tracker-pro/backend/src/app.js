@@ -15,18 +15,32 @@ const corsOptions = {
 
 app.use(cors(corsOptions));          
 app.options('*', cors(corsOptions)); 
+console.log('🔧 CORS initialized');
 
 app.use(express.json());
+console.log('🔧 JSON middleware initialized');
 
 app.get('/', (req, res) => {
+  console.log('🏠 Root route accessed');
   res.send('🚀 Job Tracker API is running smoothly...');
 });
 
 app.use('/api/jobs', jobRoutes);
+console.log('🔧 Job routes mounted under /api/jobs');
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('❌ Error middleware:', err.stack);
   res.status(500).json({ error: 'Something broke inside the server!' });
+});
+
+// Add a 404 handler for debugging
+app.use('*', (req, res) => {
+  console.log('❌ 404 - Route not found:', req.method, req.originalUrl);
+  res.status(404).json({ 
+    error: 'Not Found',
+    message: `Route ${req.method} ${req.originalUrl} not found`,
+    availableRoutes: ['/api/jobs/all', '/api/jobs/add', '/']
+  });
 });
 
 // ─── Robust Server Startup ──────────────────
