@@ -11,6 +11,7 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://job-tracker-db6g.onrender.com/api"
+    "VITE_API_URL": "https://job-tracker-db6g.onrender.com/api",
+    "VITE_COGNITO_REDIRECT_URI": "https://job-tracker-virid-theta.vercel.app"
   }
 }
