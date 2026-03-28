@@ -1,21 +1,16 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "env": {
-    "VITE_API_URL": "https://job-tracker-api.onrender.com/api/jobs"
+    "VITE_API_URL": "https://job-tracker-db6g.onrender.com/api"
   }
 }
