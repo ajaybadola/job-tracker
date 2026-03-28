@@ -7,7 +7,7 @@ const app = express();
 
 // ─── CORS Settings ──────────────────
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: process.env.NODE_ENV === 'production' ? '*' : 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -71,7 +71,7 @@ const startServer = async (preferredPort) => {
     }
 
     // Start the server
-    const server = app.listen(finalPort, () => {
+    const server = app.listen(finalPort, '0.0.0.0', () => {
       console.log(`🚀 Server running successfully on port ${finalPort}`);
       console.log(`🌍 API endpoints available at: http://localhost:${finalPort}`);
       console.log(`🔗 Frontend should use: http://localhost:${finalPort}`);
