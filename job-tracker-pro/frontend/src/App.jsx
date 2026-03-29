@@ -13,6 +13,7 @@ const cognitoAuthConfig = {
 
 const API_BASE = import.meta.env.VITE_API_URL || "/api/jobs";   // Production API URL or Vite proxy
 console.log('🔧 API_BASE resolved to:', API_BASE);
+console.log('🔍 Current API Base:', import.meta.env.VITE_API_URL);
 
 // ─── Status Config ─────────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
@@ -832,8 +833,14 @@ function Dashboard() {
     setLoading(true);
     setError("");
     try {
+      const viteApiUrl = import.meta.env.VITE_API_URL;
+      console.log('🔍 VITE_API_URL from env:', viteApiUrl);
+      console.log('🔧 API_BASE resolved to:', API_BASE);
+      
       const url = `${API_BASE}/all`;
-      console.log('🌐 Fetching jobs from:', url);
+      console.log('🌐 Final fetch URL:', url);
+      console.log('🌐 URL breakdown - API_BASE:', API_BASE, '+ /all =', url);
+      
       const res = await axios.get(url, {
         headers: { Authorization: "Bearer " + auth.user?.id_token },
       });
