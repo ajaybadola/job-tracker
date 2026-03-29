@@ -837,7 +837,9 @@ function Dashboard() {
       console.log('🔍 VITE_API_URL from env:', viteApiUrl);
       console.log('🔧 API_BASE resolved to:', API_BASE);
       
-      const url = `${API_BASE}/all`;
+      // Purani line: const url = `${API_BASE}/all`;
+      // Nayi line (Hardcoded for Final Fix):
+      const url = "https://job-tracker-db6g.onrender.com/api/jobs/all";
       console.log('🌐 Final fetch URL:', url);
       console.log('🌐 URL breakdown - API_BASE:', API_BASE, '+ /all =', url);
       
