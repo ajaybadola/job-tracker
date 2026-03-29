@@ -596,12 +596,20 @@ function AddJobModal({ onClose, onAdd, token }) {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.post(`${API_BASE}/add`, form, {
+      // Fixed: Use hardcoded URL instead of API_BASE
+      const url = "https://job-tracker-db6g.onrender.com/api/jobs/add";
+      console.log('📤 Adding job to:', url);
+      console.log('📤 Form data:', form);
+      
+      const res = await axios.post(url, form, {
         headers: { Authorization: "Bearer " + auth.user?.id_token },
       });
+      
+      console.log('✅ Job added successfully:', res.data);
       onAdd(res.data);
       onClose();
     } catch (err) {
+      console.error('❌ Add job error:', err.response?.data || err.message);
       setError(err?.response?.data?.message || "Failed to add job. Check your connection.");
     } finally {
       setLoading(false);
@@ -846,6 +854,7 @@ function Dashboard() {
       const res = await axios.get(url, {
         headers: { Authorization: "Bearer " + auth.user?.id_token },
       });
+      console.log('📊 Response Data:', res.data);
       console.log('📊 Jobs fetched successfully:', res.data.length, 'items');
       setJobs(res.data);
     } catch (err) {
