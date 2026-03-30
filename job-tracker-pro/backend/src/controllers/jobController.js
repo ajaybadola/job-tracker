@@ -91,6 +91,22 @@ exports.createJob = async (req, res) => {
 const ALLOWED_STATUSES = new Set(["Applied", "Interview", "Offer", "Rejected", "Ghosted"]);
 
 async function findUserJobOrNull(userId, jobId) {
+  // For demo jobs, return a mock object
+  if (jobId.startsWith('demo-job-')) {
+    return {
+      _id: jobId,
+      applicationId: 'demo-app-' + userId.substring(0, 8),
+      company: 'Demo Company',
+      position: 'Software Engineer',
+      status: 'Applied',
+      location: 'Remote',
+      salary: '$120k-$150k',
+      notes: 'Demo job - Database connection issue',
+      dateApplied: new Date().toISOString(),
+      userId: userId
+    };
+  }
+
   const params = {
     TableName: TABLE_NAME,
     KeyConditionExpression: "userId = :uid",
@@ -150,6 +166,12 @@ exports.deleteJob = async (req, res) => {
   try {
     const found = await findUserJobOrNull(userId, jobId);
     if (!found) return res.status(404).json({ message: "Job not found" });
+
+    // For demo jobs, just return success without actual DB deletion
+    if (jobId.startsWith('demo-job-')) {
+      console.log('🗑️ Demo job deletion simulated:', jobId);
+      return res.status(204).send();
+    }
 
     if (!found.applicationId) {
       return res.status(500).json({ message: "Missing applicationId for delete key" });
