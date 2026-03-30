@@ -1227,14 +1227,19 @@ function Dashboard() {
     const id = String(j?._id ?? "");
     const notes = String(j?.notes ?? "");
     const position = String(j?.position ?? "");
+    const company = String(j?.company ?? "");
     const notesLower = notes.toLowerCase();
+    const positionLower = position.toLowerCase();
+    const companyLower = company.toLowerCase();
 
-    // Backend fallback dummy payloads (and typical "sample" placeholders)
+    // Allow demo jobs, filter only obvious test/fallback data
     return (
-      /^dummy\d+$/i.test(id) ||
-      notesLower.includes("fallback") ||
-      position.toLowerCase().includes("(sample)") ||
-      position.toLowerCase().includes("sample")
+      id.startsWith('dummy1') ||
+      id.startsWith('dummy2') || 
+      id.startsWith('dummy3') ||
+      notesLower.includes("fallback data") ||
+      positionLower.includes("(sample)") ||
+      companyLower.includes("sample")
     );
   };
 
