@@ -6,14 +6,18 @@ import axios from "axios";
 const cognitoAuthConfig = {
   authority: "https://cognito-idp.us-west-1.amazonaws.com/us-west-1_kUvDNO3K2",
   client_id: "5fipvmst2f886tips7ft4d6t5l",
-  redirect_uri: import.meta.env.VITE_COGNITO_REDIRECT_URI || "http://localhost:5173",   // Production URL or localhost (no trailing slash)
+  redirect_uri: import.meta.env.VITE_COGNITO_REDIRECT_URI || "http://localhost:5173",
   response_type: "code",
-  scope: "openid email",                   // openid MUST be first. Remove 'phone'/'profile' unless enabled in your User Pool.
+  scope: "openid email",
 };
 
-const API_BASE = import.meta.env.VITE_API_URL || "/api/jobs";   // Production API URL or Vite proxy
-console.log('🔧 API_BASE resolved to:', API_BASE);
-console.log('🔍 Current API Base:', import.meta.env.VITE_API_URL);
+// ─── FIX #3: Robust BASE_URL — strips trailing slash, appends /api/jobs ───────
+// Set VITE_API_URL=https://job-tracker-db6g.onrender.com in Vercel env vars
+const BACKEND_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
+const API_BASE    = `${BACKEND_URL}/api/jobs`;   // → https://....onrender.com/api/jobs
+
+console.log("🔧 BACKEND_URL:", BACKEND_URL);
+console.log("🔧 API_BASE:   ", API_BASE);
 
 // ─── Status Config ─────────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
@@ -54,7 +58,7 @@ const STATUS_CONFIG = {
   },
 };
 
-// ─── Styles (injected globally) ────────────────────────────────────────────────
+// ─── Styles ────────────────────────────────────────────────────────────────────
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -81,13 +85,11 @@ const GlobalStyles = () => (
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--green); }
 
-    /* Landing Animations */
     @keyframes flicker {
       0%,100% { opacity: 1; }
       92% { opacity: 1; }
@@ -143,14 +145,12 @@ const GlobalStyles = () => (
     .delay-500 { animation-delay: 500ms; }
     .delay-600 { animation-delay: 600ms; }
 
-    /* Terminal cursor */
     .cursor::after {
       content: '_';
       animation: blink 1s step-end infinite;
       color: var(--green);
     }
 
-    /* Card hover glow */
     .job-card {
       transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
     }
@@ -160,14 +160,12 @@ const GlobalStyles = () => (
       transform: translateY(-2px);
     }
 
-    /* Glassmorphism modal backdrop */
     .modal-overlay {
       background: rgba(10,11,14,0.75);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
     }
 
-    /* Input focus glow */
     .terminal-input {
       transition: border-color 0.2s, box-shadow 0.2s;
     }
@@ -177,7 +175,6 @@ const GlobalStyles = () => (
       outline: none;
     }
 
-    /* Neon green button */
     .btn-terminal {
       position: relative;
       overflow: hidden;
@@ -198,7 +195,6 @@ const GlobalStyles = () => (
     }
     .btn-terminal:active { transform: translateY(0); }
 
-    /* Scanline overlay */
     .scanline-overlay::after {
       content: '';
       position: fixed;
@@ -214,7 +210,6 @@ const GlobalStyles = () => (
       z-index: 9999;
     }
 
-    /* Noise texture */
     .noise::before {
       content: '';
       position: fixed;
@@ -225,7 +220,6 @@ const GlobalStyles = () => (
       z-index: 9998;
     }
 
-    /* Grid mesh background */
     .grid-bg {
       background-image:
         linear-gradient(rgba(34,197,94,0.03) 1px, transparent 1px),
@@ -233,7 +227,6 @@ const GlobalStyles = () => (
       background-size: 48px 48px;
     }
 
-    /* Stat widget */
     .stat-widget {
       transition: border-color 0.3s, box-shadow 0.3s;
     }
@@ -242,7 +235,6 @@ const GlobalStyles = () => (
       box-shadow: 0 0 16px rgba(34,197,94,0.06);
     }
 
-    /* Select dropdown */
     select option {
       background: #12141c;
       color: #e2e8f0;
@@ -285,7 +277,6 @@ function LandingPage() {
         overflow: "hidden",
       }}
     >
-      {/* Radial ambient glow */}
       <div style={{
         position: "absolute",
         top: "50%",
@@ -297,7 +288,6 @@ function LandingPage() {
         pointerEvents: "none",
       }} />
 
-      {/* Spinning outer ring */}
       <div
         className="animate-spin-slow"
         style={{
@@ -324,7 +314,6 @@ function LandingPage() {
         }}
       />
 
-      {/* Boot terminal */}
       <div
         style={{
           fontFamily: "'JetBrains Mono', monospace",
@@ -344,9 +333,7 @@ function LandingPage() {
         ))}
       </div>
 
-      {/* Core content */}
       <div style={{ textAlign: "center", position: "relative", zIndex: 10 }}>
-        {/* Logo mark */}
         <div className="animate-fadein" style={{ marginBottom: "24px" }}>
           <div style={{
             display: "inline-flex",
@@ -401,9 +388,7 @@ function LandingPage() {
           <span className="cursor">CLOUD_ENGINEER_TERMINAL</span>
         </p>
 
-        {/* CTA Button */}
         <div className="animate-fadein delay-300" style={{ position: "relative", display: "inline-block" }}>
-          {/* Pulse rings */}
           <div style={{
             position: "absolute",
             inset: "-20px",
@@ -503,7 +488,6 @@ function JobCard({ job, index }) {
         opacity: 0,
       }}
     >
-      {/* Top row */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px" }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
@@ -531,10 +515,8 @@ function JobCard({ job, index }) {
         <StatusBadge status={job.status} />
       </div>
 
-      {/* Divider */}
       <div style={{ height: "1px", background: "var(--border)" }} />
 
-      {/* Meta */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
           {job.location && (
@@ -578,7 +560,9 @@ function JobCard({ job, index }) {
 }
 
 // ─── Add Job Modal ─────────────────────────────────────────────────────────────
-function AddJobModal({ onClose, onAdd, token }) {
+// FIX #1: Added useAuth() inside this component so `auth` is in scope
+function AddJobModal({ onClose, onAdd }) {
+  const auth = useAuth(); // ← FIX: was missing, causing "auth is not defined"
   const [form, setForm] = useState({
     company: "", position: "", status: "Applied",
     location: "", salary: "", notes: "",
@@ -595,22 +579,21 @@ function AddJobModal({ onClose, onAdd, token }) {
     }
     setLoading(true);
     setError("");
+
+    const url = `${API_BASE}/add`; // → https://....onrender.com/api/jobs/add
+    console.log("📤 POST to:", url);
+    console.log("📤 Form data:", form);
+
     try {
-      // Fixed: Use hardcoded URL instead of API_BASE
-      const url = "https://job-tracker-db6g.onrender.com/api/jobs/add";
-      console.log('📤 Adding job to:', url);
-      console.log('📤 Form data:', form);
-      
       const res = await axios.post(url, form, {
         headers: { Authorization: "Bearer " + auth.user?.id_token },
       });
-      
-      console.log('✅ Job added successfully:', res.data);
+      console.log("✅ Job added:", res.data);
       onAdd(res.data);
       onClose();
     } catch (err) {
-      console.error('❌ Add job error:', err.response?.data || err.message);
-      setError(err?.response?.data?.message || "Failed to add job. Check your connection.");
+      console.error("❌ Add job failed at URL:", url, err.response?.data || err.message);
+      setError(err?.response?.data?.message || `Failed to reach ${url}`);
     } finally {
       setLoading(false);
     }
@@ -666,7 +649,6 @@ function AddJobModal({ onClose, onAdd, token }) {
           boxShadow: "0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(34,197,94,0.06), 0 0 40px rgba(34,197,94,0.04)",
         }}
       >
-        {/* Modal header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
           <div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: "var(--green)", letterSpacing: "0.15em", marginBottom: "6px" }}>
@@ -700,7 +682,6 @@ function AddJobModal({ onClose, onAdd, token }) {
           </button>
         </div>
 
-        {/* Form grid */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
           <div style={{ gridColumn: "1 / -1" }}>
             <label style={labelStyle}>Company *</label>
@@ -831,38 +812,31 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
 
-  const token = auth.user?.access_token;
-  console.log("🔑 access_token:", token);
-  console.log("🔑 id_token:", auth.user?.id_token);
   const userEmail = auth.user?.profile?.email || auth.user?.profile?.sub || "engineer";
   const userHandle = userEmail.split("@")[0].toUpperCase();
 
+  // FIX #2: Added finally block so setLoading(false) always runs
   const fetchJobs = useCallback(async () => {
     setLoading(true);
     setError("");
+
+    const url = `${API_BASE}/all`; // → https://....onrender.com/api/jobs/all
+    console.log("🌐 GET:", url);
+
     try {
-      const viteApiUrl = import.meta.env.VITE_API_URL;
-      console.log('🔍 VITE_API_URL from env:', viteApiUrl);
-      console.log('🔧 API_BASE resolved to:', API_BASE);
-      
-      // Purani line: const url = `${API_BASE}/all`;
-      // Nayi line (Hardcoded for Final Fix):
-      const url = "https://job-tracker-db6g.onrender.com/api/jobs/all";
-      console.log('🌐 Final fetch URL:', url);
-      console.log('🌐 URL breakdown - API_BASE:', API_BASE, '+ /all =', url);
-      
       const res = await axios.get(url, {
         headers: { Authorization: "Bearer " + auth.user?.id_token },
       });
-      console.log('📊 Response Data:', res.data);
-      console.log('📊 Jobs fetched successfully:', res.data.length, 'items');
+      console.log("📊 Fetched", res.data.length, "jobs");
       setJobs(res.data);
     } catch (err) {
-  const status = err?.response?.status;
-  const msg = err?.response?.data?.message || err.message;
-  console.error('❌ Fetch jobs error:', { status, msg, url: `${API_BASE}/all` });
-  setError(`[${status ?? "NETWORK"}] ${msg}`);
-}
+      const status = err?.response?.status;
+      const msg    = err?.response?.data?.message || err.message;
+      console.error("❌ fetchJobs failed:", { url, status, msg });
+      setError(`[${status ?? "NETWORK"}] ${msg} — tried: ${url}`);
+    } finally {
+      setLoading(false); // ← FIX: was missing — loading was stuck as true forever
+    }
   }, [auth.user]);
 
   useEffect(() => { fetchJobs(); }, [fetchJobs]);
@@ -876,12 +850,13 @@ function Dashboard() {
     return matchStatus && matchSearch;
   });
 
-  // Stats
   const stats = {
     total: jobs.length,
     interviews: jobs.filter((j) => j.status === "Interview").length,
     offers: jobs.filter((j) => j.status === "Offer").length,
-    rate: jobs.length > 0 ? Math.round((jobs.filter(j => j.status !== "Rejected" && j.status !== "Ghosted").length / jobs.length) * 100) : 0,
+    rate: jobs.length > 0
+      ? Math.round((jobs.filter(j => j.status !== "Rejected" && j.status !== "Ghosted").length / jobs.length) * 100)
+      : 0,
   };
 
   const filterBtnStyle = (active) => ({
@@ -915,7 +890,6 @@ function Dashboard() {
         alignItems: "center",
         justifyContent: "space-between",
       }}>
-        {/* Left: Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <div style={{ width: "28px", height: "28px", borderRadius: "7px", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -935,7 +909,6 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Right: actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <button
             onClick={() => setShowModal(true)}
@@ -979,8 +952,6 @@ function Dashboard() {
 
       {/* Main */}
       <main style={{ maxWidth: "1400px", margin: "0 auto", padding: "32px 32px 80px" }}>
-
-        {/* Page title */}
         <div className="animate-fadein" style={{ marginBottom: "28px" }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: "var(--green)", letterSpacing: "0.15em", marginBottom: "8px" }}>
             ◎ DASHBOARD // {new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }).toUpperCase()}
@@ -990,7 +961,6 @@ function Dashboard() {
           </h1>
         </div>
 
-        {/* Stats row */}
         <div className="animate-fadein delay-100" style={{ display: "flex", gap: "12px", marginBottom: "28px", flexWrap: "wrap" }}>
           <StatCard label="Total Applications" value={stats.total} sub="SINCE_SESSION_START" />
           <StatCard label="Interviews" value={stats.interviews} color="#facc15" sub="ACTIVE_PIPELINE" />
@@ -998,9 +968,7 @@ function Dashboard() {
           <StatCard label="Active Rate" value={`${stats.rate}%`} color="#60a5fa" sub="NON_REJECTED_RATIO" />
         </div>
 
-        {/* Toolbar */}
         <div className="animate-fadein delay-200" style={{ display: "flex", gap: "12px", marginBottom: "24px", flexWrap: "wrap", alignItems: "center" }}>
-          {/* Search */}
           <div style={{ position: "relative", flex: "1", minWidth: "200px", maxWidth: "320px" }}>
             <span style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--muted)", fontSize: "12px", pointerEvents: "none" }}>
               ◎
@@ -1023,7 +991,6 @@ function Dashboard() {
             />
           </div>
 
-          {/* Filter chips */}
           <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
             {["All", ...Object.keys(STATUS_CONFIG)].map((s) => (
               <button key={s} style={filterBtnStyle(filter === s)} onClick={() => setFilter(s)}>
@@ -1032,7 +999,6 @@ function Dashboard() {
             ))}
           </div>
 
-          {/* Refresh */}
           <button
             onClick={fetchJobs}
             style={{
@@ -1055,7 +1021,6 @@ function Dashboard() {
           </button>
         </div>
 
-        {/* Error state */}
         {error && (
           <div style={{
             padding: "14px 18px",
@@ -1074,7 +1039,6 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Loading state */}
         {loading && (
           <div style={{ textAlign: "center", padding: "80px 20px" }}>
             <div style={{
@@ -1092,7 +1056,6 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Empty state */}
         {!loading && filteredJobs.length === 0 && !error && (
           <div style={{ textAlign: "center", padding: "80px 20px" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px", opacity: 0.2 }}>◈</div>
@@ -1122,7 +1085,6 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Bento grid */}
         {!loading && filteredJobs.length > 0 && (
           <div style={{
             display: "grid",
@@ -1136,12 +1098,10 @@ function Dashboard() {
         )}
       </main>
 
-      {/* Modal */}
       {showModal && (
         <AddJobModal
           onClose={() => setShowModal(false)}
           onAdd={(newJob) => setJobs((prev) => [newJob, ...prev])}
-          token={token}
         />
       )}
     </div>
@@ -1179,12 +1139,9 @@ function AppShell() {
   }
 
   if (auth.error) {
-    // Clear any problematic storage
     const handleAuthError = () => {
-      // Clear local storage and session storage for this origin
       localStorage.clear();
       sessionStorage.clear();
-      // Retry authentication
       auth.signinRedirect();
     };
 
@@ -1210,9 +1167,6 @@ function AppShell() {
           <p style={{ fontSize: "13px", color: "var(--muted)", lineHeight: "1.6", marginBottom: "16px" }}>
             {auth.error.message || "Authentication failed. Please try again."}
           </p>
-          <p style={{ fontSize: "11px", color: "rgba(100,116,139,0.6)", marginBottom: "20px" }}>
-            This will clear your session and retry login.
-          </p>
           <button
             onClick={handleAuthError}
             style={{
@@ -1225,15 +1179,6 @@ function AppShell() {
               borderRadius: "8px",
               padding: "10px 24px",
               cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-            onMouseOver={(e) => {
-              e.target.style.background = "rgba(34,197,94,0.15)";
-              e.target.style.borderColor = "rgba(34,197,94,0.5)";
-            }}
-            onMouseOut={(e) => {
-              e.target.style.background = "rgba(34,197,94,0.08)";
-              e.target.style.borderColor = "rgba(34,197,94,0.3)";
             }}
           >
             RETRY
@@ -1251,7 +1196,9 @@ export default function App() {
   return (
     <>
       <GlobalStyles />
-      <AppShell />
+      <AuthProvider {...cognitoAuthConfig}>
+        <AppShell />
+      </AuthProvider>
     </>
   );
 }
