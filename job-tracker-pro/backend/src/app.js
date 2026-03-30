@@ -7,8 +7,12 @@ const app = express();
 
 // ─── CORS Settings ──────────────────
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? '*' : 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: [
+    'http://localhost:5173',
+    'https://job-tracker-virid-theta.vercel.app',
+    'https://job-tracker-db6g.onrender.com'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 };

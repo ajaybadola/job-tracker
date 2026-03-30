@@ -1261,7 +1261,7 @@ function Dashboard() {
         headers: { Authorization: "Bearer " + auth.user?.id_token },
       });
       console.log("📊 Fetched", res.data.length, "jobs");
-      setJobs(sanitizeJobs(res.data));
+      setJobs(res.data); // Allow demo jobs to display
     } catch (err) {
       const status = err?.response?.status;
       const msg    = err?.response?.data?.message || err.message;
@@ -1614,13 +1614,7 @@ function Dashboard() {
       {showModal && (
         <AddJobModal
           onClose={() => setShowModal(false)}
-          onAdd={(newJob) =>
-            setJobs((prev) => {
-              const clean = sanitizeJobs([newJob]);
-              if (clean.length === 0) return prev;
-              return [clean[0], ...prev];
-            })
-          }
+          onAdd={(newJob) => setJobs((prev) => [newJob, ...prev])}
         />
       )}
     </div>
