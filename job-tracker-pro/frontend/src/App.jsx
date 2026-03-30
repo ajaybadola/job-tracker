@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "react-oidc-context";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ─── FIX #3: Robust BASE_URL — strips trailing slash, appends /api/jobs ───────
 // Set VITE_API_URL=https://job-tracker-db6g.onrender.com in Vercel env vars
