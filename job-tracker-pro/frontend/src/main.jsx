@@ -4,7 +4,11 @@ import App from "./App";
 import { AuthProvider } from "react-oidc-context";
 
 // Debug: Log the exact redirect URI being used
-const redirectUri = import.meta.env.VITE_COGNITO_REDIRECT_URI || "http://localhost:5173";
+const redirectUri =
+  import.meta.env.VITE_COGNITO_REDIRECT_URI ||
+  (typeof window !== "undefined"
+    ? `${window.location.origin}${window.location.pathname}`
+    : "http://localhost:5173");
 console.log('🔍 Cognito Redirect URI:', redirectUri);
 
 const cognitoAuthConfig = {

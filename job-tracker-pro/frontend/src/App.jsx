@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { useAuth, AuthProvider } from "react-oidc-context";
+import { useAuth } from "react-oidc-context";
 import axios from "axios";
-
-// ─── Cognito Config ────────────────────────────────────────────────────────────
-const cognitoAuthConfig = {
-  authority: "https://cognito-idp.us-west-1.amazonaws.com/us-west-1_kUvDNO3K2",
-  client_id: "5fipvmst2f886tips7ft4d6t5l",
-  redirect_uri: import.meta.env.VITE_COGNITO_REDIRECT_URI || "http://localhost:5173",
-  response_type: "code",
-  scope: "openid email",
-};
 
 // ─── FIX #3: Robust BASE_URL — strips trailing slash, appends /api/jobs ───────
 // Set VITE_API_URL=https://job-tracker-db6g.onrender.com in Vercel env vars
@@ -1719,9 +1710,7 @@ export default function App() {
   return (
     <>
       <GlobalStyles />
-      <AuthProvider {...cognitoAuthConfig}>
-        <AppShell />
-      </AuthProvider>
+      <AppShell />
     </>
   );
 }
