@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth, AuthProvider } from "react-oidc-context";
 import axios from "axios";
 
@@ -239,6 +239,230 @@ const GlobalStyles = () => (
       background: #12141c;
       color: #e2e8f0;
     }
+
+    @keyframes regret-shake {
+      10% { transform: translateX(-6px) rotate(-1deg); }
+      25% { transform: translateX(5px) rotate(1deg); }
+      45% { transform: translateX(-3px) rotate(-0.6deg); }
+      65% { transform: translateX(2px) rotate(0.4deg); }
+      85% { transform: translateX(-1px) rotate(-0.2deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+
+    @keyframes congrats-bounce {
+      0% { transform: scale(0.96) translateY(14px); opacity: 0; }
+      55% { transform: scale(1.02) translateY(-4px); opacity: 1; }
+      75% { transform: scale(0.99) translateY(2px); }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .job-actions {
+      margin-top: 2px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .move-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .move-select {
+      appearance: none;
+      background: rgba(10,11,14,0.55);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-family: "'JetBrains Mono', monospace";
+      font-size: 12px;
+      cursor: pointer;
+      width: 170px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .move-select:focus {
+      outline: none;
+      border-color: rgba(34,197,94,0.6);
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.08);
+    }
+
+    .btn-move {
+      background: rgba(34,197,94,0.10);
+      border: 1px solid rgba(34,197,94,0.35);
+      color: var(--green);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-family: "'JetBrains Mono', monospace";
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: transform 0.15s, box-shadow 0.25s, border-color 0.2s, background 0.2s, opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-move:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--green-glow);
+      border-color: rgba(34,197,94,0.55);
+      background: rgba(34,197,94,0.14);
+    }
+
+    .btn-move:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(30,32,41,0.45);
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.2s, background 0.2s, box-shadow 0.25s, opacity 0.2s;
+      font-size: 16px;
+    }
+
+    .btn-icon:hover {
+      transform: translateY(-1px);
+      border-color: rgba(34,197,94,0.3);
+    }
+
+    .btn-delete {
+      border-color: rgba(239,68,68,0.25);
+      background: rgba(239,68,68,0.06);
+    }
+
+    .btn-delete:hover {
+      border-color: rgba(239,68,68,0.45);
+      box-shadow: 0 0 18px rgba(239,68,68,0.15);
+    }
+
+    .btn-icon:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .feedback-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(10,11,14,0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .feedback-modal {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      border-radius: 18px;
+      border: 1px solid rgba(34,197,94,0.18);
+      background: rgba(18,20,28,0.92);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.75), 0 0 0 1px rgba(34,197,94,0.06);
+      overflow: hidden;
+      padding: 28px 28px 22px;
+    }
+
+    .feedback-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(30,32,41,0.6);
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, transform 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "'JetBrains Mono', monospace";
+      font-size: 14px;
+    }
+
+    .feedback-close:hover {
+      border-color: rgba(34,197,94,0.35);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .feedback-body {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .confetti-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .regret-card {
+      animation: regret-shake 0.6s ease both;
+      border-color: rgba(239,68,68,0.22);
+    }
+
+    .congrats-card {
+      animation: congrats-bounce 0.85s cubic-bezier(0.2, 1.2, 0.3, 1) both;
+      border-color: rgba(34,197,94,0.22);
+    }
+
+    .feedback-title {
+      font-family: "'JetBrains Mono', monospace";
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 11px;
+      color: rgba(100,116,139,0.6);
+      margin-bottom: 10px;
+    }
+
+    .feedback-message {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+      margin-bottom: 12px;
+    }
+
+    .feedback-sub {
+      font-size: 13px;
+      color: rgba(148,163,184,0.85);
+      line-height: 1.6;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .regret-card, .congrats-card { animation: none !important; }
+    }
   `}</style>
 );
 
@@ -466,7 +690,14 @@ function StatusBadge({ status }) {
 }
 
 // ─── Job Card ──────────────────────────────────────────────────────────────────
-function JobCard({ job, index }) {
+function JobCard({ job, index, onMoveStatus, onDelete, moving, deleting }) {
+  const MOVE_STATUSES = ["Applied", "Interview", "Offer", "Rejected", "Ghosted"];
+  const [nextStatus, setNextStatus] = useState(job.status || "Applied");
+
+  useEffect(() => {
+    setNextStatus(job.status || "Applied");
+  }, [job.status]);
+
   const dateStr = job.dateApplied
     ? new Date(job.dateApplied).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" })
     : "—";
@@ -555,6 +786,189 @@ function JobCard({ job, index }) {
           {job.notes}
         </div>
       )}
+
+      <div className="job-actions">
+        <div className="move-controls">
+          <select
+            className="move-select"
+            value={nextStatus}
+            onChange={(e) => setNextStatus(e.target.value)}
+            disabled={moving || deleting}
+          >
+            {MOVE_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+
+          <button
+            className="btn-move"
+            disabled={moving || deleting || !nextStatus || nextStatus === job.status}
+            onClick={() => onMoveStatus?.(job._id, nextStatus)}
+          >
+            {moving ? "MOVING..." : "MOVE"}
+          </button>
+        </div>
+
+        <button
+          className="btn-icon btn-delete"
+          disabled={deleting || moving}
+          onClick={() => onDelete?.(job._id)}
+          aria-label="Delete job"
+          title="Delete"
+        >
+          {"\u{1F5D1}"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Confetti Canvas (for Congrats popup) ─────────────────────────────────────
+function ConfettiCanvas({ active }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (!active) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rand = (min, max) => Math.random() * (max - min) + min;
+    const colors = ["#22c55e", "#60a5fa", "#facc15", "#fb7185", "#a78bfa", "#f97316", "#ffffff"];
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.max(320, Math.floor(rect.width));
+      const h = Math.max(200, Math.floor(rect.height));
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+    };
+
+    resize();
+
+    const particles = Array.from({ length: 170 }, () => {
+      const shape = Math.random() > 0.55 ? "rect" : "circle";
+      const sizeBase = shape === "rect" ? rand(4, 10) : rand(4, 9);
+      return {
+        x: rand(0, canvas.width),
+        y: rand(-canvas.height, 0),
+        w: sizeBase * dpr,
+        h: (shape === "rect" ? rand(6, 14) : sizeBase) * dpr,
+        vy: rand(3, 7) * dpr,
+        vx: rand(-2.2, 2.2) * dpr,
+        rot: rand(0, Math.PI * 2),
+        vr: rand(-0.2, 0.2),
+        color: colors[Math.floor(Math.random() * colors.length)],
+        shape,
+      };
+    });
+
+    let rafId = null;
+    const start = performance.now();
+    const duration = 2600;
+
+    const tick = (now) => {
+      const elapsed = now - start;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (const p of particles) {
+        // gravity-ish + drift
+        p.vy += 0.02 * dpr;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vr;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+
+        if (p.shape === "rect") {
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, Math.min(p.w, p.h) / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      if (elapsed < duration) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    rafId = requestAnimationFrame(tick);
+
+    const onResize = () => resize();
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [active]);
+
+  return <canvas ref={canvasRef} className="confetti-canvas" />;
+}
+
+// ─── Feedback Modal (Regret + Congrats) ──────────────────────────────────────
+function FeedbackModal({ type, status, job, onClose }) {
+  const isRegret = type === "regret";
+  const isCongrats = type === "congrats";
+
+  useEffect(() => {
+    const t = setTimeout(() => onClose?.(), 5200);
+    return () => clearTimeout(t);
+  }, [onClose, type]);
+
+  const skull = "\u2620"; // skull symbol (ASCII escape)
+  const fireworks = "\uD83C\uDF89";
+
+  return (
+    <div className="feedback-overlay" onClick={onClose}>
+      <div
+        className={`feedback-modal ${isRegret ? "regret-card" : "congrats-card"}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {isCongrats && <ConfettiCanvas active={true} />}
+
+        <button className="feedback-close" onClick={onClose} aria-label="Close">
+          ✕
+        </button>
+
+        <div className="feedback-body">
+          <div
+            style={{
+              fontSize: 32,
+              lineHeight: 1,
+              marginTop: 2,
+              color: isRegret ? "rgba(248,113,113,0.95)" : "rgba(34,197,94,0.95)",
+            }}
+          >
+            {isRegret ? skull : fireworks}
+          </div>
+
+          <div>
+            <div className="feedback-title">{isRegret ? "Regret" : "Congratulations"}</div>
+            <div className="feedback-message">
+              {isRegret ? "This one’s a no." : `You moved to ${status}.`}
+            </div>
+            <div className="feedback-sub">
+              {job?.company
+                ? `${job.company} · ${job.position || "Application"}`
+                : "Keep tracking your pipeline — the next one will hit."}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -811,9 +1225,32 @@ function Dashboard() {
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
+  const [movingJobId, setMovingJobId] = useState(null);
+  const [deletingJobId, setDeletingJobId] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
   const userEmail = auth.user?.profile?.email || auth.user?.profile?.sub || "engineer";
   const userHandle = userEmail.split("@")[0].toUpperCase();
+
+  const isDummyJob = (j) => {
+    const id = String(j?._id ?? "");
+    const notes = String(j?.notes ?? "");
+    const position = String(j?.position ?? "");
+    const notesLower = notes.toLowerCase();
+
+    // Backend fallback dummy payloads (and typical "sample" placeholders)
+    return (
+      /^dummy\d+$/i.test(id) ||
+      notesLower.includes("fallback") ||
+      position.toLowerCase().includes("(sample)") ||
+      position.toLowerCase().includes("sample")
+    );
+  };
+
+  const sanitizeJobs = (items) => {
+    if (!Array.isArray(items)) return [];
+    return items.filter((j) => !isDummyJob(j));
+  };
 
   // FIX #2: Added finally block so setLoading(false) always runs
   const fetchJobs = useCallback(async () => {
@@ -828,7 +1265,7 @@ function Dashboard() {
         headers: { Authorization: "Bearer " + auth.user?.id_token },
       });
       console.log("📊 Fetched", res.data.length, "jobs");
-      setJobs(res.data);
+      setJobs(sanitizeJobs(res.data));
     } catch (err) {
       const status = err?.response?.status;
       const msg    = err?.response?.data?.message || err.message;
@@ -872,6 +1309,69 @@ function Dashboard() {
     color: active ? "var(--green)" : "var(--muted)",
     transition: "all 0.2s",
   });
+
+  const handleMoveStatus = async (jobId, nextStatus) => {
+    const job = jobs.find((j) => j._id === jobId);
+    if (!job) return;
+    if (!nextStatus || nextStatus === job.status) return;
+
+    const prevStatus = job.status;
+
+    setMovingJobId(jobId);
+    setError("");
+
+    // Optimistic UI update
+    setJobs((prev) => prev.map((j) => (j._id === jobId ? { ...j, status: nextStatus } : j)));
+
+    try {
+      const url = `${API_BASE}/${jobId}`; // expected: PATCH/PUT /api/jobs/:id
+      const res = await axios.patch(
+        url,
+        { status: nextStatus },
+        { headers: { Authorization: "Bearer " + auth.user?.id_token } }
+      );
+
+      const updated = res?.data;
+      if (updated && typeof updated === "object") {
+        setJobs((prev) =>
+          prev.map((j) => (j._id === jobId ? { ...j, ...updated, status: nextStatus } : j))
+        );
+      }
+
+      if (nextStatus === "Rejected") {
+        setFeedback({ type: "regret", status: nextStatus, job });
+      } else if (nextStatus === "Interview" || nextStatus === "Offer") {
+        setFeedback({ type: "congrats", status: nextStatus, job });
+      }
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message;
+      console.error("❌ Move status failed:", { url: `${API_BASE}/${jobId}`, msg });
+      setError(`Move failed: ${msg}`);
+      setJobs((prev) => prev.map((j) => (j._id === jobId ? { ...j, status: prevStatus } : j)));
+    } finally {
+      setMovingJobId(null);
+    }
+  };
+
+  const handleDeleteJob = async (jobId) => {
+    const job = jobs.find((j) => j._id === jobId);
+    if (!job) return;
+
+    setDeletingJobId(jobId);
+    setError("");
+
+    try {
+      const url = `${API_BASE}/${jobId}`; // expected: DELETE /api/jobs/:id
+      await axios.delete(url, { headers: { Authorization: "Bearer " + auth.user?.id_token } });
+      setJobs((prev) => prev.filter((j) => j._id !== jobId));
+    } catch (err) {
+      const msg = err?.response?.data?.message || err.message;
+      console.error("❌ Delete failed:", { url: `${API_BASE}/${jobId}`, msg });
+      setError(`Delete failed: ${msg}`);
+    } finally {
+      setDeletingJobId(null);
+    }
+  };
 
   return (
     <div className="noise scanline-overlay" style={{ minHeight: "100vh", background: "var(--black)" }}>
@@ -1092,16 +1592,39 @@ function Dashboard() {
             gap: "16px",
           }}>
             {filteredJobs.map((job, i) => (
-              <JobCard key={job._id || i} job={job} index={i} />
+              <JobCard
+                key={job._id || i}
+                job={job}
+                index={i}
+                onMoveStatus={handleMoveStatus}
+                onDelete={handleDeleteJob}
+                moving={movingJobId === job._id}
+                deleting={deletingJobId === job._id}
+              />
             ))}
           </div>
         )}
       </main>
 
+      {feedback && (
+        <FeedbackModal
+          type={feedback.type}
+          status={feedback.status}
+          job={feedback.job}
+          onClose={() => setFeedback(null)}
+        />
+      )}
+
       {showModal && (
         <AddJobModal
           onClose={() => setShowModal(false)}
-          onAdd={(newJob) => setJobs((prev) => [newJob, ...prev])}
+          onAdd={(newJob) =>
+            setJobs((prev) => {
+              const clean = sanitizeJobs([newJob]);
+              if (clean.length === 0) return prev;
+              return [clean[0], ...prev];
+            })
+          }
         />
       )}
     </div>

@@ -16,4 +16,14 @@ router.get('/all', authMiddleware, (req, res, next) => {
   next();
 }, jobController.getJobs);
 
+router.patch('/:id', authMiddleware, (req, res, next) => {
+  console.log(' PATCH /api/jobs/:id - Updating job status:', req.params.id);
+  next();
+}, jobController.updateJobStatus);
+
+router.delete('/:id', authMiddleware, (req, res, next) => {
+  console.log(' DELETE /api/jobs/:id - Deleting job:', req.params.id);
+  next();
+}, jobController.deleteJob);
+
 module.exports = router;

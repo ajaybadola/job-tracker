@@ -116,3 +116,87 @@ exports.createJob = async (req, res) => {
     res.status(200).json(fallbackJob);
   }
 };
+
+const ALLOWED_STATUSES = new Set(["Applied", "Interview", "Offer", "Rejected", "Ghosted"]);
+
+async function findUserJobOrNull(userId, jobId) {
+  const params = {
+    TableName: TABLE_NAME,
+    KeyConditionExpression: "userId = :uid",
+    ExpressionAttributeValues: { ":uid": userId },
+  };
+
+  const data = await docClient.query(params).promise();
+  const items = Array.isArray(data?.Items) ? data.Items : [];
+
+  // Frontend sends job._id as :id, but we also support applicationId for safety.
+  const found =
+    items.find((it) => String(it?._id) === String(jobId)) ||
+    items.find((it) => String(it?.applicationId) === String(jobId)) ||
+    null;
+
+  return found;
+}
+
+exports.updateJobStatus = async (req, res) => {
+  const userId = req.user.sub;
+  const jobId = req.params.id;
+  const nextStatus = req.body?.status;
+
+  if (!jobId) return res.status(400).json({ message: "Missing job id" });
+  if (!nextStatus) return res.status(400).json({ message: "Missing status" });
+  if (!ALLOWED_STATUSES.has(nextStatus)) {
+    return res.status(400).json({ message: `Invalid status: ${nextStatus}` });
+  }
+
+  try {
+    const found = await findUserJobOrNull(userId, jobId);
+    if (!found) return res.status(404).json({ message: "Job not found" });
+
+    const updatedItem = {
+      ...found,
+      status: nextStatus,
+      // optional metadata; safe even if your table doesn't expect it
+      lastStatusUpdateAt: new Date().toISOString(),
+    };
+
+    // PutItem avoids needing to know which attribute is your DynamoDB sort key
+    await docClient.put({ TableName: TABLE_NAME, Item: updatedItem }).promise();
+
+    return res.json(updatedItem);
+  } catch (err) {
+    console.error("Critical Database Error (Update):", err);
+    return res.status(500).json({ message: err.message || "Failed to update job status" });
+  }
+};
+
+exports.deleteJob = async (req, res) => {
+  const userId = req.user.sub;
+  const jobId = req.params.id;
+
+  if (!jobId) return res.status(400).json({ message: "Missing job id" });
+
+  try {
+    const found = await findUserJobOrNull(userId, jobId);
+    if (!found) return res.status(404).json({ message: "Job not found" });
+
+    if (!found.applicationId) {
+      return res.status(500).json({ message: "Missing applicationId for delete key" });
+    }
+
+    // DynamoDB key schema:
+    //   PK: userId (String)
+    //   SK: applicationId (String)
+    await docClient
+      .delete({
+        TableName: TABLE_NAME,
+        Key: { userId, applicationId: found.applicationId },
+      })
+      .promise();
+
+    return res.status(204).send();
+  } catch (err) {
+    console.error("Critical Database Error (Delete):", err);
+    return res.status(500).json({ message: err.message || "Failed to delete job" });
+  }
+};
