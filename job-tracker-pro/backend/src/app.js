@@ -5,21 +5,13 @@ require('dotenv').config();
 
 const app = express();
 
-// ─── CORS Settings ──────────────────
-const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'https://job-tracker-virid-theta.vercel.app',
-    'https://job-tracker-db6g.onrender.com'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-};
-
-app.use(cors(corsOptions));          
-app.options('*', cors(corsOptions)); 
-console.log('🔧 CORS initialized');
+// ─── Global CORS Configuration ──────────────────
+app.use(cors({
+  origin: 'https://job-tracker-virid-theta.vercel.app', 
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], 
+  allowedHeaders: ['Content-Type', 'Authorization'] 
+}));
+console.log('🔧 Global CORS configured for Vercel frontend');
 
 app.use(express.json());
 console.log('🔧 JSON middleware initialized');
